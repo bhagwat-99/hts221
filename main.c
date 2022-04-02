@@ -73,7 +73,10 @@ int main()
         float humidity = ((1.0 * H1) - (1.0 * H0)) * (1.0 * hum - 1.0 * H2) / (1.0 * H3 - 1.0 * H2) + (1.0 * H0);
         if( humidity > 100.0)
 	{
-		humidity = 100.00;
+		EnableHeater();
+                sleep(5);
+                DisableHeater();
+                sleep(1)
 	}
         float cTemp = ((T1 - T0) / 8.0) * (temp - T2) / (T3 - T2) + (T0 / 8.0);
         float fTemp = (cTemp * 1.8 ) + 32;
@@ -82,13 +85,13 @@ int main()
         printf("Temperature in Celsius : %.2f C \n", cTemp);
         printf("Temperature in Fahrenheit : %.2f F \n", fTemp);
 
-        if( humidity > 100.0)
-	{
-		EnableHeater();
-                sleep(5);
-                DisableHeater();
-                sleep(1);
-	}
+        // if( humidity > 100.0)
+	// {
+	// 	EnableHeater();
+        //         sleep(5);
+        //         DisableHeater();
+        //         sleep(1);
+	// }
 
         i2c_close();
         return 0;
