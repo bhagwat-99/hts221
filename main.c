@@ -1,5 +1,5 @@
-#include "hts221.h"
 
+#include "hts221.h"
 
 int main()
 {
@@ -46,8 +46,8 @@ int main()
         __uint16_t raw = i2c_read_1Byte(slave_addr, reg);
 
         // Convert the temperature Calibration values to 10-bits
-	T0 = ((raw & 0x03) * 256) + T0;
-	T1 = ((raw & 0x0C) * 64) + T1;
+		T0 = ((raw & 0x03) * 256) + T0;
+		T1 = ((raw & 0x0C) * 64) + T1;
 
         //Read 2 byte of data from address(0x3C and 0x3D)
         reg = 0x3C | 0x80 ;// | 0x80 auto increment reg value - datasheet sect : 5.5.1
@@ -71,27 +71,19 @@ int main()
         }
 
         float humidity = ((1.0 * H1) - (1.0 * H0)) * (1.0 * hum - 1.0 * H2) / (1.0 * H3 - 1.0 * H2) + (1.0 * H0);
-        if( humidity > 100.0)
+        if( humidity > 90.0)
 	{
 		EnableHeater();
-                sleep(5);
+                sleep(60);
                 DisableHeater();
-                sleep(1)
+                sleep(1);
 	}
         float cTemp = ((T1 - T0) / 8.0) * (temp - T2) / (T3 - T2) + (T0 / 8.0);
         float fTemp = (cTemp * 1.8 ) + 32;
     
-        printf("Relative humidity : %.2f % \n", humidity);
+        printf("Relative humidity : %.2f  %%\n", humidity);
         printf("Temperature in Celsius : %.2f C \n", cTemp);
         printf("Temperature in Fahrenheit : %.2f F \n", fTemp);
-
-        // if( humidity > 100.0)
-	// {
-	// 	EnableHeater();
-        //         sleep(5);
-        //         DisableHeater();
-        //         sleep(1);
-	// }
 
         i2c_close();
         return 0;

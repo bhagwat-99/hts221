@@ -1,6 +1,0 @@
-make --dry-run --always-make --keep-going --print-directory
-make: Entering directory '/home/lab301/bhagwatws/Sensor/hts221'
-aarch64-linux-gnu-gcc main.c hts221.c -o hts221_arm
-gcc main.c hts221.c -o hts221_x86
-make: Leaving directory '/home/lab301/bhagwatws/Sensor/hts221'
- 

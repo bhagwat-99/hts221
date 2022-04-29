@@ -78,7 +78,7 @@ int i2c_init(void)
 {
     if ((fd_i2c = open(i2c_bus, O_RDWR)) < 0)
     {
-        printf("Failed to open apalis-i2c1.");
+        printf("Failed to open apalis-i2c1.\n");
         return -1;
     }
     return fd_i2c;
@@ -123,6 +123,7 @@ int EnableHeater()
         __uint8_t reg_value = i2c_read_1Byte(slave_addr, reg);
         reg_value |= 0x02 ;
         i2c_write(slave_addr, reg, reg_value );
+        printf("Heater enabled.\n");
         return 0;
 
 }
@@ -133,6 +134,7 @@ int DisableHeater()
         __uint8_t reg_value = i2c_read_1Byte(slave_addr, reg);
         reg_value &= ~(0x02);
         i2c_write(slave_addr, reg, reg_value );
+        printf("Disabled.\n");
         return 0;
 }
 
