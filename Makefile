@@ -1,6 +1,4 @@
-hts221_arm: main.c hts221.c
-	aarch64-linux-gnu-gcc main.c hts221.c -o hts221_arm
-	gcc main.c hts221.c -o hts221_x86
-
+TH_reading: main.c hts221.c I2C.c
+	aarch64-linux-gnu-gcc main.c hts221.c I2C.c -o TH_reading
 clean:
 	rm *.o
