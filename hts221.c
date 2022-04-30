@@ -1,142 +1,263 @@
+/*      @author         Bhagwat Shinde
+        name            hts221.c
+        Description     Library for interfacing hts221 light and humidity sensor
+        date            30 April 2022
+
+        How to use      include hts221.h file in your mainn code and you are ready to use fuctions
+        compilation     gcc main.c hts221.c I2C.c -o output
+
+        Note            change the i2c_bus (i2c adapter as per your board)
+*/
 #include "hts221.h"
+#include "I2C.h"
 
-int fd_i2c = -1; // i2c bus file descriptor
-const char *i2c_bus = "/dev/apalis-i2c1";
 
-// Read the given I2C slave device's register and return the read value in `*result`:
-__uint16_t i2c_read_2Byte(unsigned char slave_address, unsigned char reg) 
+
+// calibration parameters
+
+//fixed value - read only once
+
+uint8_t H0;             //0x30
+uint8_t H1;             //0x31
+
+int16_t H2;             //0x36 & 0x37
+int16_t H3;             //0x3a & 0x3b
+
+uint16_t T0;            //0x32
+uint16_t T1;            //0x33
+
+uint16_t raw;            //0x35
+
+int16_t T2;              //0x3c & 0x3d
+int16_t T3;              //0x3e & 0x3f
+
+// this two values get updated 
+
+int16_t hum;             //0x28 & 0x29
+int16_t temp;            //0x2a & 0x2b
+
+
+//configuring the sensor
+int configure_sensor()
 {
-        unsigned char outbuf[1];
-        unsigned char inbuf[2];
-
-        outbuf[0]= reg;
-        inbuf[0] = 0;
-        inbuf[1] = 0;
-
-
-        struct i2c_msg msgs[2];
-        struct i2c_rdwr_ioctl_data msgset[1];
-
-        msgs[0].addr = slave_addr;
-        msgs[0].flags = 0;
-        msgs[0].len = 1;
-        msgs[0].buf = outbuf;
-
-        msgs[1].addr = slave_addr;
-        msgs[1].flags = I2C_M_RD;
-        msgs[1].len = 2;
-        msgs[1].buf = inbuf;
-
-        msgset[0].msgs = msgs;
-        msgset[0].nmsgs = 2;
-
-        if(ioctl(fd_i2c, I2C_RDWR, &msgset) < 0) {
-                perror("ioctl(I2C_RDWR) in i2c_read");
+        uint8_t reg_addr = 0x10;
+        uint8_t reg_value[2];
+        reg_value[0] = 0x1b;
+        uint8_t n_bytes = 1;
+        uint8_t ret_value = i2c_write(SLAVE_ADDR, reg_addr,reg_value,n_bytes);
+        if(ret_value < 0)
+        {
+                printf("configuring sensor failed\n");
                 return -1;
         }
 
-        __uint16_t reg_value = inbuf[1]*256 + inbuf[0] ;
-        return reg_value;
-}
-
-__uint8_t i2c_read_1Byte(unsigned char slave_address, unsigned char reg) 
-{
-        unsigned char outbuf[1];
-        unsigned char inbuf[1];
-
-        outbuf[0]= reg;
-        inbuf[0] = 0;
-
-
-        struct i2c_msg msgs[2];
-        struct i2c_rdwr_ioctl_data msgset[1];
-
-        msgs[0].addr = slave_addr;
-        msgs[0].flags = 0;
-        msgs[0].len = 1;
-        msgs[0].buf = outbuf;
-
-        msgs[1].addr = slave_addr;
-        msgs[1].flags = I2C_M_RD;
-        msgs[1].len = 2;
-        msgs[1].buf = inbuf;
-
-        msgset[0].msgs = msgs;
-        msgset[0].nmsgs = 2;
-
-        if(ioctl(fd_i2c, I2C_RDWR, &msgset) < 0) {
-                perror("ioctl(I2C_RDWR) in i2c_read");
+        reg_addr = 0x20;
+        reg_value[0] = 0x85;
+        n_bytes = 1;
+        ret_value = i2c_write(SLAVE_ADDR, reg_addr,reg_value,n_bytes);
+        if(ret_value < 0)
+        {
+                printf("configuring sensor failed\n");
                 return -1;
         }
 
-        __uint8_t reg_value = inbuf[0] ;
-        return reg_value;
+        return 0;
 }
 
 
-int i2c_init(void)
+// read calibration data only once
+int read_calibration_data()
 {
-    if ((fd_i2c = open(i2c_bus, O_RDWR)) < 0)
-    {
-        printf("Failed to open apalis-i2c1.\n");
-        return -1;
-    }
-    return fd_i2c;
+        uint8_t reg_addr = 0x30;
+        uint8_t reg_value[2]={0};
+        uint8_t n_bytes = 1;
+        uint8_t * p_ret_data = i2c_read(SLAVE_ADDR, reg_addr,n_bytes);
+
+        H0 = *(p_ret_data);
+        H0 = H0/2;
+
+        reg_addr = 0x31;
+        n_bytes = 1;
+        p_ret_data = i2c_read(SLAVE_ADDR, reg_addr,n_bytes);
+
+        H1 = *(p_ret_data);
+        H1 = H1/2;
+
+
+
+        reg_addr = 0x36 | 0x80;// | 0x80 auto increment reg value
+        n_bytes = 2;
+        p_ret_data = i2c_read(SLAVE_ADDR, reg_addr,n_bytes);
+        
+        H2 = (uint16_t)(*(p_ret_data+1)) << 8 | *p_ret_data ;
+
+
+
+
+        reg_addr = 0x3a | 0x80;// | 0x80 auto increment reg value
+        n_bytes = 2;
+        p_ret_data = i2c_read(SLAVE_ADDR, reg_addr,n_bytes);
+        
+        H3 = (uint16_t)(*(p_ret_data+1)) << 8 | *p_ret_data ;
+
+
+
+        reg_addr = 0x32;
+        n_bytes = 1;
+        p_ret_data = i2c_read(SLAVE_ADDR, reg_addr,n_bytes);
+       
+        T0 = *(p_ret_data);
+
+
+
+        reg_addr = 0x33;
+        n_bytes = 1;
+        p_ret_data = i2c_read(SLAVE_ADDR, reg_addr,n_bytes);
+        
+        T1 = *(p_ret_data);
+
+        reg_addr = 0x35;
+        n_bytes = 1;
+        p_ret_data = i2c_read(SLAVE_ADDR, reg_addr,n_bytes);
+       
+        raw = *(p_ret_data);
+
+        // Convert the temperature Calibration values to 10-bits
+        T0 = ((raw & 0x03) * 256) + T0;
+        T1 = ((raw & 0x0C) * 64) + T1;
+
+
+
+        reg_addr = 0x3c | 0x80;// | 0x80 auto increment reg value
+        n_bytes = 2;
+        p_ret_data = i2c_read(SLAVE_ADDR, reg_addr,n_bytes);
+
+        T2 = (uint16_t)(*(p_ret_data+1)) << 8 | *p_ret_data ;
+
+
+        reg_addr = 0x3e | 0x80;// | 0x80 auto increment reg value
+        n_bytes = 2;
+        p_ret_data = i2c_read(SLAVE_ADDR, reg_addr,n_bytes);
+
+        T3 = (uint16_t)(*(p_ret_data+1)) << 8 | *p_ret_data ;
+
+
+        return 0;        
 }
 
-void i2c_close(void) 
+//read temperature data
+float read_temperature()
 {
-    close(fd_i2c);
+        uint8_t reg_addr = 0x2a | 0x80;// | 0x80 auto increment reg value
+        uint8_t n_bytes = 2;
+        uint8_t * p_ret_data = i2c_read(SLAVE_ADDR, reg_addr,n_bytes);
+
+        temp = (uint16_t)(*(p_ret_data+1)) << 8 | *p_ret_data ;
+
+        float cTemp = ((T1 - T0) / 8.0) * (temp - T2) / (T3 - T2) + (T0 / 8.0);
+        //float fTemp = (cTemp * 1.8 ) + 32;
+        return cTemp;
+
 }
 
-// Write to an I2C slave device's register:
-int i2c_write(unsigned char slave_address, unsigned char reg, unsigned char byte )
+//read humidity value
+float read_humidity()
 {
-    struct i2c_msg msgs[1];
-    struct i2c_rdwr_ioctl_data msgset[1];
+        uint8_t reg_addr = 0x28 | 0x80;// | 0x80 auto increment reg value
+        uint8_t n_bytes = 2;
+        uint8_t * p_ret_data = i2c_read(SLAVE_ADDR, reg_addr,n_bytes);
 
-    unsigned char outbuf[2];
+        hum = (uint16_t)(*(p_ret_data+1)) << 8 | *p_ret_data ;
 
-    outbuf[0] = reg;
-    outbuf[1] = byte;
-
-    msgs[0].addr = slave_addr;
-    msgs[0].flags = 0;// 0 for write 
-    msgs[0].len = 2;
-    msgs[0].buf = outbuf;
-
-    msgset[0].msgs = msgs;
-    msgset[0].nmsgs = 1;
-
-    if (ioctl(fd_i2c, I2C_RDWR, &msgset) < 0) {
-        perror("ioctl(I2C_RDWR) in i2c_write");
-        return -1;
-    }
-
-    return 0;
+        float humidity = ((1.0 * H1) - (1.0 * H0)) * (1.0 * hum - 1.0 * H2) / (1.0 * H3 - 1.0 * H2) + (1.0 * H0);
+        return humidity;
 }
 
+// enable internal heater for humidity saturation
 int EnableHeater()
 {
         //Read 1 byte of data from address(0x21)
-        unsigned char reg = 0x21;
-        __uint8_t reg_value = i2c_read_1Byte(slave_addr, reg);
-        reg_value |= 0x02 ;
-        i2c_write(slave_addr, reg, reg_value );
+        uint8_t reg_addr = 0x21;
+        uint8_t n_bytes = 1;
+        uint8_t * p_ret_val = i2c_read(SLAVE_ADDR, reg_addr,n_bytes);
+        uint8_t reg_data[2];
+        reg_data[0] = *p_ret_val | 0x02;
+        i2c_write(SLAVE_ADDR, reg_addr,reg_data, n_bytes);
         printf("Heater enabled.\n");
         return 0;
 
 }
+
+// Heater disable function
 int DisableHeater()
 {
         //Read 1 byte of data from address(0x21)
-        unsigned char reg = 0x21;
-        __uint8_t reg_value = i2c_read_1Byte(slave_addr, reg);
-        reg_value &= ~(0x02);
-        i2c_write(slave_addr, reg, reg_value );
-        printf("Disabled.\n");
+        uint8_t reg_addr = 0x21;
+        uint8_t n_bytes = 1;
+        uint8_t * p_ret_val = i2c_read(SLAVE_ADDR, reg_addr,n_bytes);
+        uint8_t reg_data[2];
+        reg_data[0] = *p_ret_val & ~(0x02);
+        i2c_write(SLAVE_ADDR, reg_addr,reg_data, n_bytes);
+        printf("Heater Disabled.\n");
         return 0;
 }
 
+int write_to_file()
+{
 
+FILE *fptr;
+while(1)
+{
+// reading humidity value
+float humidity = read_humidity();
+if(humidity > 100)
+{
+        humidity = 100;
+}
+
+while(humidity > 95)
+{
+//enable heater
+EnableHeater();
+sleep(15);
+// disabling the heater
+DisableHeater();
+humidity = read_humidity();
+
+}
+
+// reading temperature data
+float cTemp = read_temperature();
+float fTemp = (cTemp * 1.8 ) + 32;
+
+//opening the file
+fptr = fopen("/tmp/ambient_data","w");
+
+
+//writing Relative humidity to file
+if(fprintf(fptr,"Relative Humidity : %.2f %%\n",humidity )<0)
+{
+        printf("error writing relative humidity to file \n");     
+}
+
+
+
+//writing Temperature to file
+if(fprintf(fptr,"Temperature in C: %.2f C\n",cTemp )<0)
+{
+        printf("error writing temperature to file \n");     
+}
+
+//writing Temperature to file
+if(fprintf(fptr,"Temperature in F: %.2f F\n",fTemp )<0)
+{
+        printf("error writing temperature to file \n");     
+}
+
+fclose(fptr);
+sleep(10);
+
+}
+return 0;
+}
 

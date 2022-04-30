@@ -12,14 +12,20 @@
 #include <linux/i2c-dev.h> // struct i2c_msg
 #include <linux/i2c.h> // struct i2c_rdwr_ioctl_data
 
-#define slave_addr 0x5f
+#define SLAVE_ADDR 0x5f
 
-int i2c_write(unsigned char slave_address, unsigned char reg, unsigned char byte );
-__uint16_t i2c_read_2Byte(unsigned char slave_address, unsigned char reg);
-__uint8_t i2c_read_1Byte(unsigned char slave_address, unsigned char reg);
+typedef unsigned char uint8_t;
+typedef unsigned short uint16_t;
+
+
+
+int configure_sensor();
+int read_calibration_data();
+float read_temperature();
+float read_humidity();
 int EnableHeater();
 int DisableHeater();
-int i2c_init(void);
-void i2c_close(void);
+int write_to_file();
+
 
 #endif
