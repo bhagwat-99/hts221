@@ -103,6 +103,7 @@ unsigned char * i2c_read(unsigned char slave_addr, unsigned char reg, unsigned c
 
     if (ioctl(fd_i2c, I2C_RDWR, &msgset) < 0) {
         perror("ioctl(I2C_RDWR) in i2c_read");
+        return NULL;
     }
     
     return i2c_data;

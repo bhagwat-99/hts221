@@ -35,16 +35,31 @@ int main()
         //configuring the sensor
         if (configure_sensor() < 0)
         {
+                printf("Failed to read configure the sensor \n");
                 return -1;
         }
 
         // reading the calibration data - read only once
-        read_calibration_data();
+        if(read_calibration_data()<0)
+        {
+                printf("Failed to read calibration parameter \n");
+                return -1;
+        }
 
         // writing humidity and temperature data to ram file i.e. /tmp/ambient_data
-        write_to_file();
+        if(write_to_file()<0)
+        {
+                printf("Failed to write file \n");
+                return -1;
+        }
 
         //close the i2c bus
-        i2c_close(i2c_bus);
+        int ret_val = i2c_close(i2c_bus);
+        if(ret_val<0)
+        {
+                printf("Failed to close the %s \n", i2c_bus);
+                return -1;
+        }
+
         return 0;
 }
