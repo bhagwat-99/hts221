@@ -75,7 +75,7 @@ int read_calibration_data()
         uint8_t * p_ret_data = i2c_read(SLAVE_ADDR, reg_addr,n_bytes);
         if(p_ret_data == NULL)
         {
-                printf("configuring sensor failed\n");
+                printf("Read_calibration_data failed\n");
                 return -1;
         }
 
@@ -85,11 +85,11 @@ int read_calibration_data()
 
         reg_addr = 0x31;
         n_bytes = 1;
-        p_ret_data = i2c_read(SLAVE_ADDR, reg_addr,n_bytes);
 
+        p_ret_data = i2c_read(SLAVE_ADDR, reg_addr,n_bytes);
         if( p_ret_data == NULL)
         {
-                printf("configuring sensor failed\n");
+                printf("Read_calibration_data failed\n");
                 return -1;
         }
 
@@ -104,7 +104,7 @@ int read_calibration_data()
 
         if( p_ret_data == NULL)
         {
-                printf("configuring sensor failed\n");
+                printf("Read_calibration_data failed\n");
                 return -1;
         }
         
@@ -119,7 +119,7 @@ int read_calibration_data()
 
         if( p_ret_data == NULL)
         {
-                printf("configuring sensor failed\n");
+                printf("Read_calibration_data failed\n");
                 return -1;
         }
         
@@ -133,7 +133,7 @@ int read_calibration_data()
 
         if( p_ret_data == NULL)
         {
-                printf("configuring sensor failed\n");
+                printf("Read_calibration_data failed\n");
                 return -1;
         }
        
@@ -147,7 +147,7 @@ int read_calibration_data()
 
         if( p_ret_data == NULL)
         {
-                printf("configuring sensor failed\n");
+                printf("Read_calibration_data failed\n");
                 return -1;
         }
         
@@ -159,7 +159,7 @@ int read_calibration_data()
 
         if( p_ret_data == NULL)
         {
-                printf("configuring sensor failed\n");
+                printf("Read_calibration_data failed\n");
                 return -1;
         }
        
@@ -177,7 +177,7 @@ int read_calibration_data()
 
         if( p_ret_data == NULL)
         {
-                printf("configuring sensor failed\n");
+                printf("Read_calibration_data failed\n");
                 return -1;
         }
 
@@ -190,7 +190,7 @@ int read_calibration_data()
 
         if( p_ret_data == NULL)
         {
-                printf("configuring sensor failed\n");
+                printf("Read_calibration_data failed\n");
                 return -1;
         }
 
@@ -250,7 +250,7 @@ int EnableHeater()
         uint8_t * p_ret_val = i2c_read(SLAVE_ADDR, reg_addr,n_bytes);
         if( p_ret_val == NULL)
         {
-                printf("Can not enable heater\n");
+                printf("Heater enabled failed\n");
                 return -1;
         }
 
@@ -259,7 +259,7 @@ int EnableHeater()
         int ret_val = i2c_write(SLAVE_ADDR, reg_addr,reg_data, n_bytes);
         if(ret_val < 0 )
         {
-                printf("Can not enable heater\n");
+                printf("Heater enabled failed\n");
                 return -1;
         }
         printf("Heater enabled.\n");
@@ -276,7 +276,7 @@ int DisableHeater()
         uint8_t * p_ret_val = i2c_read(SLAVE_ADDR, reg_addr,n_bytes);
         if( p_ret_val == NULL)
         {
-                printf("Can not disable heater\n");
+                printf("Heater disable failed\n");
                 return -1;
         }
 
@@ -286,7 +286,7 @@ int DisableHeater()
         int ret_val = i2c_write(SLAVE_ADDR, reg_addr,reg_data, n_bytes);
         if(ret_val < 0 )
         {
-                printf("Can not disable heater\n");
+                printf("Heater disable failed\n");
                 return -1;
         }
         printf("Heater Disabled.\n");
@@ -317,7 +317,7 @@ int write_to_file()
         int ret_val = EnableHeater();
         if(ret_val < 0)
         {
-                printf("Failed to enable heater\n");
+                return -1;
         }
         sleep(30);
         // disabling the heater
@@ -325,7 +325,7 @@ int write_to_file()
         ret_val = DisableHeater();
         if(ret_val < 0)
         {
-                printf("Failed to disable heater\n");
+                return -1;
         }
         humidity = read_humidity();
 
@@ -357,14 +357,14 @@ int write_to_file()
         //writing Temperature to file
         if(fprintf(fptr,"Temperature in C: %.2f C\n",cTemp )<0)
         {
-                printf("error writing temperature to file \n");
+                printf("error writing temperature (C) to file \n");
                 return -1;     
         }
 
         //writing Temperature to file
         if(fprintf(fptr,"Temperature in F: %.2f F\n",fTemp )<0)
         {
-                printf("error writing temperature to file \n");   
+                printf("error writing temperature (F) to file \n");   
                 return -1;  
         }
 
