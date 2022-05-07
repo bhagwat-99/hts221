@@ -38,6 +38,8 @@ int16_t hum;             //0x28 & 0x29
 int16_t temp;            //0x2a & 0x2b
 
 
+#define heater_on_time = 30 // in seconds
+
 //configuring the sensor
 int configure_sensor()
 {
@@ -301,14 +303,14 @@ int write_to_file()
         {
         // reading humidity value
         float humidity = read_humidity();
-        if(humidity <0)
+        if(humidity < 0)
         {
-                printf("error reading humidity \n");
+                printf("Error reading humidity \n");
                 return -1;
         }
-        if(humidity > 100)
+        if(humidity > 95)
         {
-                humidity = 100;
+                humidity = read_humidity();
         }
 
         while(humidity > 95)
@@ -319,9 +321,10 @@ int write_to_file()
         {
                 return -1;
         }
-        sleep(30);
+
+        sleep(heater_on_time);
+
         // disabling the heater
-        //DisableHeater();
         ret_val = DisableHeater();
         if(ret_val < 0)
         {
