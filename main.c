@@ -28,14 +28,14 @@ int main()
         //initilize the i2c bus
         if (i2c_init(i2c_bus) < 0)
         {
-                printf("Failed to open %s \n",i2c_bus);
+                //printf("Failed to open %s \n",i2c_bus);
                 return -1;
         }
 
         //configuring the sensor
         if (configure_sensor() < 0)
         {
-                printf("Failed to read configure the sensor \n");
+                printf("Failed to configure the sensor \n");
                 return -1;
         }
 
@@ -57,7 +57,7 @@ int main()
         int ret_val = i2c_close(i2c_bus);
         if(ret_val<0)
         {
-                printf("Failed to close the %s \n", i2c_bus);
+                //printf("Failed to close the %s \n", i2c_bus);
                 return -1;
         }
 

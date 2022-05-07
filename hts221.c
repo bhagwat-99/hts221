@@ -1,4 +1,5 @@
-/*      @author         Bhagwat Shinde
+/*
+        @author         Bhagwat Shinde
         name            hts221.c
         Description     Library for interfacing hts221 light and humidity sensor
         date            30 April 2022
@@ -31,7 +32,7 @@ uint16_t raw;            //0x35
 int16_t T2;              //0x3c & 0x3d
 int16_t T3;              //0x3e & 0x3f
 
-// this two values get updated 
+// this two values get updated
 
 int16_t hum;             //0x28 & 0x29
 int16_t temp;            //0x2a & 0x2b
@@ -41,7 +42,7 @@ int16_t temp;            //0x2a & 0x2b
 int configure_sensor()
 {
         uint8_t reg_addr = 0x10;
-        uint8_t reg_value[2];
+        uint8_t reg_value[1];
         reg_value[0] = 0x1b;
         uint8_t n_bytes = 1;
         uint8_t ret_value = i2c_write(SLAVE_ADDR, reg_addr,reg_value,n_bytes);

@@ -101,7 +101,8 @@ unsigned char * i2c_read(unsigned char slave_addr, unsigned char reg, unsigned c
     msgset[0].msgs = msgs;
     msgset[0].nmsgs = 2;
 
-    if (ioctl(fd_i2c, I2C_RDWR, &msgset) < 0) {
+    if (ioctl(fd_i2c, I2C_RDWR, &msgset) < 0)
+    {
         perror("ioctl(I2C_RDWR) in i2c_read");
         return NULL;
     }
