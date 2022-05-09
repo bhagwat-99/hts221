@@ -26,28 +26,26 @@ char *i2c_bus = "/dev/apalis-i2c1";
 int main()
 {
         //initilize the i2c bus
-        if (i2c_init(i2c_bus) < 0)
+        if (i2c_init(i2c_bus) == -1)
         {
                 //printf("Failed to open %s \n",i2c_bus);
                 return -1;
         }
 
         //configuring the sensor
-        if (configure_sensor() < 0)
+        if (configure_sensor() == -1)
         {
-                printf("Failed to configure the sensor \n");
                 return -1;
         }
 
         // reading the calibration data - read only once
-        if(read_calibration_data()<0)
+        if(read_calibration_data() == -1)
         {
-                printf("Failed to read calibration parameter \n");
                 return -1;
         }
 
         // writing humidity and temperature data to ram file i.e. /tmp/ambient_data
-        if(write_to_file()<0)
+        if(write_to_file() == -1)
         {
                 printf("Failed to write file \n");
                 return -1;

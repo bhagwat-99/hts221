@@ -4,7 +4,7 @@
         date            30 April 2022
 
         How to use      include  I2C.h file in your code and you are ready to use I2C COMMUNICATION FUCTION
-        compilation     gcc main.c hts221.c I2C.c -o output
+        compilation     gcc main.c hts221.c I2C.c -o output  => here hts221.c is another library in which I2C.c library is used
 
 */
 
