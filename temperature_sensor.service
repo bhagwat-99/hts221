@@ -12,7 +12,7 @@ StartLimitBurst=2
 
 
 [Service]
-ExecStart=/home/root/bhagwatws/TH_reading
+ExecStart=/usr/sbin/sensor_code/TH_reading
 Restart=on-failure
 
 [Install]

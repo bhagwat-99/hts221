@@ -346,10 +346,10 @@ int write_to_file()
                 float fTemp = (cTemp * 1.8 ) + 32;
 
                 //opening the file
-                fptr = fopen("/tmp/ambient_data","w");
+                fptr = fopen("/tmp/met","w");
                 if( fptr == NULL)
                 {
-                        printf("Can not open file /tmp/ambient_data\n");
+                        printf("Can not open file /tmp/met\n");
                         return -1;
                 }
 
