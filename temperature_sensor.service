@@ -1,9 +1,3 @@
-/*      @author         Bhagwat Shinde
-        name            temperature_sensor.service
-        Description     write battery parameters to the ram file /tmp/ambient_data
-        date            09 May 2022
-        How to use      Enable the service
-*/
 
 [unit]
 Description= Temperature and humidity sensor service
