@@ -295,9 +295,8 @@ int DisableHeater()
         return 0;
 }
 
-int write_to_file()
+int write_to_file(int mode)
 {
-
         FILE *fptr;
         while(1)
         {
@@ -386,6 +385,9 @@ int write_to_file()
                 }
                 sleep(10);
 
+                if (mode == 2){
+                    exit(0);
+                }
         }
         return 0;
 }

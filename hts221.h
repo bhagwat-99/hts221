@@ -2,6 +2,7 @@
 #define HTS221_H
 
 #include <stdio.h> // printf()
+#include <stdlib.h>
 #include <sys/types.h> // open()
 #include <sys/stat.h> // open()
 #include <fcntl.h> // open()

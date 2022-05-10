@@ -23,8 +23,8 @@ char *i2c_bus = "/dev/apalis-i2c1";
 //char *i2c_bus = "/dev/i2c-0";
 
 
-int main()
-{
+int main(int argc, char *argv[])
+{       
         //initilize the i2c bus
         if (i2c_init(i2c_bus) == -1)
         {
@@ -45,7 +45,7 @@ int main()
         }
 
         // writing humidity and temperature data to ram file i.e. /tmp/ambient_data
-        if(write_to_file() == -1)
+        if(write_to_file(argc) == -1)
         {
                 printf("Failed to write file \n");
                 return -1;
