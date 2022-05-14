@@ -355,7 +355,7 @@ int write_to_file(int mode)
 
 
                 //writing Relative humidity to file
-                if(fprintf(fptr,"Relative Humidity : %.2f %%\n",humidity )<0)
+                if(fprintf(fptr,"Relative_Humidity:%.2f\n",humidity )<0)
                 {
                         printf("error writing relative humidity to file \n");
                         return -1;     
@@ -364,14 +364,14 @@ int write_to_file(int mode)
 
 
                 //writing Temperature to file
-                if(fprintf(fptr,"Temperature in C: %.2f C\n",cTemp )<0)
+                if(fprintf(fptr,"Temperature(C):%.2f\n",cTemp )<0)
                 {
                         printf("error writing temperature (C) to file \n");
                         return -1;     
                 }
 
                 //writing Temperature to file
-                if(fprintf(fptr,"Temperature in F: %.2f F\n",fTemp )<0)
+                if(fprintf(fptr,"Temperature(F):%.2f\n",fTemp )<0)
                 {
                         printf("error writing temperature (F) to file \n");   
                         return -1;  
