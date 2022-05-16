@@ -18,7 +18,8 @@
 typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;
 
-
+#define RAM_FILE_PATH "/var/tmp/met"
+#define MODE "w"
 
 int configure_sensor();
 int read_calibration_data();

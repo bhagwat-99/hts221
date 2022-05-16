@@ -345,10 +345,10 @@ int write_to_file(int mode)
                 float fTemp = (cTemp * 1.8 ) + 32;
 
                 //opening the file
-                fptr = fopen("/tmp/met","w");
+                fptr = fopen(RAM_FILE_PATH,MODE);
                 if( fptr == NULL)
                 {
-                        printf("Can not open file /tmp/met\n");
+                        printf("Can not open file /var/tmp/met\n");
                         return -1;
                 }
 
