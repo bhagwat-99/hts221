@@ -40,6 +40,9 @@ int16_t temp;            //0x2a & 0x2b
 
 #define heater_on_time  30 // in seconds
 
+const char * DATA_OUT_FORMAT = "{\n\t\"Relative_humidity\":\"%.2f\", \n\t\"Temperature(C)\":\"%.2f\", \n\t\"Temperature(F)\":\"%.2f\"\n}\n";
+
+
 //configuring the sensor
 int configure_sensor()
 {
@@ -51,7 +54,7 @@ int configure_sensor()
         if(ret_value == -1)
         {
                 printf("configuring sensor failed\n");
-                return -1;
+                exit(1);
         }
 
         reg_addr = 0x20;
@@ -61,7 +64,7 @@ int configure_sensor()
         if(ret_value == -1)
         {
                 printf("configuring sensor failed\n");
-                return -1;
+                exit(1);
         }
 
         return 0;
@@ -78,7 +81,7 @@ int read_calibration_data()
         if(p_ret_data == NULL)
         {
                 printf("Read_calibration_data failed\n");
-                return -1;
+                exit(1);
         }
 
 
@@ -92,7 +95,7 @@ int read_calibration_data()
         if( p_ret_data == NULL)
         {
                 printf("Read_calibration_data failed\n");
-                return -1;
+                exit(1);
         }
 
         H1 = *(p_ret_data);
@@ -107,7 +110,7 @@ int read_calibration_data()
         if( p_ret_data == NULL)
         {
                 printf("Read_calibration_data failed\n");
-                return -1;
+                exit(1);
         }
         
         H2 = (uint16_t)(*(p_ret_data+1)) << 8 | *p_ret_data ;
@@ -122,7 +125,7 @@ int read_calibration_data()
         if( p_ret_data == NULL)
         {
                 printf("Read_calibration_data failed\n");
-                return -1;
+                exit(1);
         }
         
         H3 = (uint16_t)(*(p_ret_data+1)) << 8 | *p_ret_data ;
@@ -136,7 +139,7 @@ int read_calibration_data()
         if( p_ret_data == NULL)
         {
                 printf("Read_calibration_data failed\n");
-                return -1;
+                exit(1);
         }
        
         T0 = *(p_ret_data);
@@ -150,7 +153,7 @@ int read_calibration_data()
         if( p_ret_data == NULL)
         {
                 printf("Read_calibration_data failed\n");
-                return -1;
+                exit(1);
         }
         
         T1 = *(p_ret_data);
@@ -162,7 +165,7 @@ int read_calibration_data()
         if( p_ret_data == NULL)
         {
                 printf("Read_calibration_data failed\n");
-                return -1;
+                exit(1);
         }
        
         raw = *(p_ret_data);
@@ -180,7 +183,7 @@ int read_calibration_data()
         if( p_ret_data == NULL)
         {
                 printf("Read_calibration_data failed\n");
-                return -1;
+                exit(1);
         }
 
         T2 = (uint16_t)(*(p_ret_data+1)) << 8 | *p_ret_data ;
@@ -193,7 +196,7 @@ int read_calibration_data()
         if( p_ret_data == NULL)
         {
                 printf("Read_calibration_data failed\n");
-                return -1;
+                exit(1);
         }
 
         T3 = (uint16_t)(*(p_ret_data+1)) << 8 | *p_ret_data ;
@@ -212,7 +215,7 @@ float read_temperature()
         if( p_ret_data == NULL)
         {
                 printf("read temperature failed\n");
-                return -1;
+                exit(1);
         }
 
         temp = (uint16_t)(*(p_ret_data+1)) << 8 | *p_ret_data ;
@@ -233,7 +236,7 @@ float read_humidity()
         if( p_ret_data == NULL)
         {
                 printf("read humidity failed\n");
-                return -1;
+                exit(1);
         }
 
 
@@ -253,7 +256,7 @@ int EnableHeater()
         if( p_ret_val == NULL)
         {
                 printf("Heater enabled failed\n");
-                return -1;
+                exit(1);
         }
 
         uint8_t reg_data[2];
@@ -262,7 +265,7 @@ int EnableHeater()
         if(ret_val < 0 )
         {
                 printf("Heater enabled failed\n");
-                return -1;
+                exit(1);
         }
         printf("Heater enabled.\n");
         return 0;
@@ -279,7 +282,7 @@ int DisableHeater()
         if( p_ret_val == NULL)
         {
                 printf("Heater disable failed\n");
-                return -1;
+                exit(1);
         }
 
         uint8_t reg_data[2];
@@ -289,7 +292,7 @@ int DisableHeater()
         if(ret_val < 0 )
         {
                 printf("Heater disable failed\n");
-                return -1;
+                exit(1);
         }
         printf("Heater Disabled.\n");
         return 0;
@@ -297,47 +300,35 @@ int DisableHeater()
 
 int write_to_file(int mode)
 {
+        
+
+
         FILE *fptr;
         while(1)
         {
                 // reading humidity value
                 float humidity = read_humidity();
-                if(humidity == -1)
-                {
-                        return -1;
-                }
                 if(humidity > 95)
                 {
                         humidity = read_humidity();
-                        if(humidity == -1)
-                        {
-                                return -1;
-                        }
+                }
+
+                if(humidity < 5)
+                {
+                        humidity = 5;
                 }
 
                 while(humidity > 95)
                 {
                         //enable heater
-                        int ret_val = EnableHeater();
-                        if(ret_val == -1)
-                        {
-                                return -1;
-                        }
-                        
+                        EnableHeater();
+
                         sleep(heater_on_time);
 
                         // disabling the heater
-                        ret_val = DisableHeater();
-                        if(ret_val < 0)
-                        {
-                                return -1;
-                        }
-                        humidity = read_humidity();
-                        if(humidity == -1)
-                        {
-                                return -1;
-                        }
+                        DisableHeater();
 
+                        humidity = read_humidity();
                 }
 
                 // reading temperature data
@@ -348,40 +339,44 @@ int write_to_file(int mode)
                 fptr = fopen(RAM_FILE_PATH,MODE);
                 if( fptr == NULL)
                 {
-                        printf("Can not open file /var/tmp/met\n");
-                        return -1;
+                        printf("Can not open file %s\n",RAM_FILE_PATH);
+                        exit(1);
                 }
 
-
-
-                //writing Relative humidity to file
-                if(fprintf(fptr,"Relative_Humidity:%.2f\n",humidity )<0)
+                if(fprintf(fptr,DATA_OUT_FORMAT, humidity, cTemp, fTemp)<0)
                 {
-                        printf("error writing relative humidity to file \n");
-                        return -1;     
+                        printf("Error : write to file \n");
+                        exit(1);
                 }
 
+                // //writing Relative humidity to file
+                // if(fprintf(fptr,"Relative_Humidity:%.2f\n",humidity )<0)
+                // {
+                //         printf("error writing relative humidity to file \n");
+                //         exit(1);     
+                // }
 
 
-                //writing Temperature to file
-                if(fprintf(fptr,"Temperature(C):%.2f\n",cTemp )<0)
-                {
-                        printf("error writing temperature (C) to file \n");
-                        return -1;     
-                }
 
-                //writing Temperature to file
-                if(fprintf(fptr,"Temperature(F):%.2f\n",fTemp )<0)
-                {
-                        printf("error writing temperature (F) to file \n");   
-                        return -1;  
-                }
+                // //writing Temperature to file
+                // if(fprintf(fptr,"Temperature(C):%.2f\n",cTemp )<0)
+                // {
+                //         printf("error writing temperature (C) to file \n");
+                //         exit(1);     
+                // }
+
+                // //writing Temperature to file
+                // if(fprintf(fptr,"Temperature(F):%.2f\n",fTemp )<0)
+                // {
+                //         printf("error writing temperature (F) to file \n");   
+                //         exit(1);  
+                // }
 
 
                 if( fclose(fptr) == EOF)
                 {
                         printf("Can not close file /tmp/ambient_data\n");
-                        return -1;
+                        exit(1);
                 }
                 sleep(10);
 
